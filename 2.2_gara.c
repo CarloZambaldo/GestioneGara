@@ -4,7 +4,7 @@
         consente di inserire un punteggio dato dai giudici
         stampa una classifica generale
 */
-// da fare: salvare tutto su file, sistemare la classifica (non funziona la modalita' per pari posto....)
+// da fare: salvare tutto su file
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -264,47 +264,47 @@ void puntiGiudice(struct situazione_atleta ballerine[], int id){
 
 // genero e stampo la classifica degli atleti
 void classifica(struct situazione_atleta ballerine[]){
-    int voti[n_atleti][2];  // la prima riga e' dedicata ai punteggi, la seconda a quante volte compaiono
+    int voti[n_atleti];  // la prima riga e' dedicata ai punteggi, la seconda a quante volte compaiono
     int i,j;
     for(i=0; i<n_atleti; i++){
-        voti[i][0]=ballerine[i].points;
+        voti[i]=ballerine[i].points;
     }
 
     // riordino i punteggi (dal piu' alto al piu' basso)
     for(j=0; j<n_atleti; j++){
         for(i=0; i<n_atleti; i++){
-            if(voti[i][0]<voti[i+1][0]){
-                voti[i][0]+=voti[i+1][0];
-                voti[i+1][0]=voti[i][0]-voti[i+1][0];
-                voti[i][0]-=voti[i+1][0];
-                
+            if(voti[i]<voti[i+1]){
+                voti[i]+=voti[i+1];
+                voti[i+1]=voti[i]-voti[i+1];
+                voti[i]-=voti[i+1];  
             }
-            voti[j][1]=0;
         }
     }
 
-    // quante volte compaiono
-    for(j=0; j<n_atleti; j++){
-        for(i=0; i<n_atleti; i++){
-            if(voti[j][0]==voti[i][0]){
-                voti[j][1]++;
-            }
-        }
-    }
+    // elimino i punteggi ripetuti
+    int L=n_atleti;
+    i=1;
+    do{
+        if (voti[i]==voti[i-1]){
+            for(j=i; j<L; j++)
+                voti[j-1]=voti[j];
+            L--; 
+            voti[L]=-1;
+	    } else {
+            i++;
+        } 
+    } while (i<L);
     
     // controllo chi ha il punteggio piu' alto e scrivo la classifica
-    int posizione=0;
     printf("Posiz\tCodice\tPunti\n");
-    for(i=0; i<n_atleti; i++){
+    int posizione=0;
+    for(i=0; i<L; i++){
         for(j=0; j<n_atleti; j++){
-            if(ballerine[j].points==voti[i][0] && voti[i][1]==1){
-                posizione++;
-                printf("  %d\t%s\t%d\n", posizione, ballerine[j].codice, ballerine[j].points);
-            } else {
-                printf(" *%d\t%s\t%d\n", posizione, ballerine[j].codice, ballerine[j].points);
-                i+=voti[i][1];
+            if(voti[i]==ballerine[j].points){
+                printf(" %d\t%s\t%d\n", posizione, ballerine[j].codice, ballerine[j].points);
             }
         }
+        posizione++;
     }
 }
 
